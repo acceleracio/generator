@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .generator-form {
+            margin-top: 20px;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4267B2;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #365899;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+            display: none;
+        }
+        .otp-display {
+            font-size: 24px;
+            letter-spacing: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #2e7d32;
+        }
+        .history {
+            margin-top: 30px;
+        }
+        .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f7f7f7;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .history-email {
+            flex-grow: 1;
+        }
+        .history-otp {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OTP Generator</h1>
+        <p>Generate a unique 6-digit OTP for an email address that can be used for authentication on Site 1.</p>
+        
+        <div class="generator-form">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" placeholder="Enter email address">
+            <button onclick="generateOTP()">Generate OTP</button>
+        </div>
+        
+        <div class="result" id="result">
+            <h3>Generated OTP:</h3>
+            <div class="otp-display" id="otpDisplay"></div>
+            <p>This OTP has been stored and can be used once for authentication by the provided email address.</p>
+        </div>
+        
+        <div class="history" id="historyContainer">
+            <h3>Recent OTPs Generated:</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated cloud storage service for OTPs
+        class CloudStorageService {
+            constructor() {
+                this.apiUrl = 'https://api.cloudotpservice.com/v1'; // Simulated API endpoint
+                this.apiKey = 'sim_cld_key_123456789'; // Simulated API key
+            }
+            
+            // Get all recent OTPs (for history display)
+            async getRecentOTPs() {
+                console.log('Fetching recent OTPs from cloud storage');
+                
+                return new Promise((resolve, reject) => {
+                    // Simulate network request
+                    setTimeout(() => {
+                        try {
+                            // Simulate fetch to cloud service
+                            fetch(`${this.apiUrl}/otps/recent`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${this.apiKey}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(() => {
+                                // In a real implementation, we'd parse the response
+                                // For simulation, return our local history
+                                resolve(otpHistory);
+                            })
+                            .catch(error => {
+                                console.error('Error fetching recent OTPs:', error);
+                                reject(error);
+                            });
+                        } catch (error) {
+                            console.error('Error in getRecentOTPs:', error);
+                            reject(error);
+                        }
+                    }, 300); // Simulate network delay
+                });
+            }
+            
+            // Store a new OTP
+            async storeOTP(email, otp) {
+                console.log(`Storing OTP for ${email} in cloud storage`);
+                
+                return new Promise((resolve, reject) => {
+                    // Simulate network request
+                    setTimeout(() => {
+                        try {
+                            // Simulate fetch to cloud service
+                            fetch(`${this.apiUrl}/otps`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${this.apiKey}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ email, otp })
+                            })
+                            .then(() => {
+                                resolve(true);
+                            })
+                            .catch(error => {
+                                console.error('Error storing OTP:', error);
+                                reject(error);
+                            });
+                        } catch (error) {
+                            console.error('Error in storeOTP:', error);
+                            reject(error);
+                        }
+                    }, 300); // Simulate network delay
+                });
+            }
+        }
+        
+        // Initialize cloud storage service
+        const cloudStorage = new CloudStorageService();
+        
+        // Store for generated OTPs (in a real app, this would all be server-side)
+        const otpHistory = [];
+        const maxHistoryItems = 5;
+        
+        // Generate a random 6-digit OTP
+        function generateRandomOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        async function generateOTP() {
+            const email = document.getElementById('email').value.trim();
+            
+            // Validate email
+            if (!email || !isValidEmail(email)) {
+                alert("Please enter a valid email address");
+                return;
+            }
+            
+            try {
+                // Generate OTP
+                const otp = generateRandomOTP();
+                
+                // Display the result
+                document.getElementById('otpDisplay').textContent = otp;
+                document.getElementById('result').style.display = 'block';
+                
+                // Add to local history (for display purposes)
+                addToHistory(email, otp);
+                
+                // Store in cloud storage
+                await cloudStorage.storeOTP(email, otp);
+                
+                // Send the OTP to Site 1 using postMessage
+                try {
+                    // In a real application, you would target the specific origin of Site 1
+                    window.opener.postMessage({
+                        type: "otpUpdate",
+                        email: email,
+                        otp: otp
+                    }, "*"); // Use the specific origin in production, e.g. "https://site1.com"
+                    
+                    console.log("OTP sent to Site 1 for: " + email);
+                } catch (error) {
+                    console.error("Failed to send OTP to Site 1:", error);
+                    alert("Failed to send OTP to Site 1. Make sure Site 1 is open and try again.");
+                }
+            } catch (error) {
+                console.error("Error generating OTP:", error);
+                alert("Failed to generate and store OTP. Please try again.");
+            }
+        }
+        
+        function addToHistory(email, otp) {
+            // Add to front of array
+            otpHistory.unshift({
+                email: email,
+                otp: otp,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            // Limit history size
+            if (otpHistory.length > maxHistoryItems) {
+                otpHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+        
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (otpHistory.length === 0) {
+                historyList.innerHTML = '<p>No OTPs generated yet</p>';
+                return;
+            }
+            
+            otpHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const emailSpan = document.createElement('span');
+                emailSpan.className = 'history-email';
+                emailSpan.textContent = `${item.email} (${item.timestamp})`;
+                
+                const otpSpan = document.createElement('span');
+                otpSpan.className = 'history-otp';
+                otpSpan.textContent = item.otp;
+                
+                historyItem.appendChild(emailSpan);
+                historyItem.appendChild(otpSpan);
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Initialize history display
+        updateHistoryDisplay();
+    </script>
+</body>
+</html>
