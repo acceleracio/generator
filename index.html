@@ -3,456 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin OTP Generator</title>
+    <title>OTP Generator - Admin Panel</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f5f9;
-            color: #333;
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
         }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        h1 { text-align: center; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 3px; 
+            box-sizing: border-box; 
         }
-        h1 {
-            color: #2c3e50;
-            margin-top: 0;
-            text-align: center;
-            font-size: 28px;
+        button { 
+            background: #28a745; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            width: 100%; 
         }
-        .admin-badge {
-            background-color: #34495e;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            display: inline-block;
-            margin-left: 8px;
-            vertical-align: middle;
+        button:hover { background: #218838; }
+        #result { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 3px; 
+            background: #f8f9fa; 
+            display: none; 
         }
-        .generator-form {
-            margin-top: 30px;
+        #generatedOTP { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #007bff; 
+            text-align: center; 
+            margin: 10px 0; 
         }
-        .form-group {
-            margin-bottom: 20px;
+        .error { color: red; }
+        .success { color: green; }
+        #activeOTPs { 
+            margin-top: 30px; 
+            border-top: 1px solid #ddd; 
+            padding-top: 20px; 
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
+        .otp-item { 
+            padding: 10px; 
+            margin: 5px 0; 
+            background: #f1f1f1; 
+            border-radius: 3px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
         }
-        input[type="email"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input[type="email"]:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        button {
-            background-color: #2ecc71;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #27ae60;
-        }
-        .result {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #e8f5e9;
-            display: none;
-            border-left: 4px solid #2ecc71;
-        }
-        .otp-display {
-            font-size: 36px;
-            letter-spacing: 8px;
-            text-align: center;
-            font-weight: bold;
-            margin: 15px 0;
-            color: #2ecc71;
-            font-family: monospace;
-        }
-        .copy-btn {
-            background-color: #3498db;
-            color: white;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .copy-btn:hover {
-            background-color: #2980b9;
-        }
-        .history {
-            margin-top: 40px;
-        }
-        .history-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-heading h3 {
-            margin: 0;
-        }
-        .clear-btn {
-            background-color: #e74c3c;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .clear-btn:hover {
-            background-color: #c0392b;
-        }
-        .history-item {
-            padding: 15px;
-            margin: 10px 0;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.2s;
-        }
-        .history-item:hover {
-            background-color: #ecf0f1;
-        }
-        .history-email {
-            flex-grow: 1;
-        }
-        .history-otp {
-            font-weight: bold;
-            margin-left: 15px;
-            font-family: monospace;
-            padding: 4px 8px;
-            background-color: #f1f8e9;
-            border-radius: 4px;
-            color: #388e3c;
-        }
-        .timestamp {
-            font-size: 12px;
-            color: #7f8c8d;
-            display: block;
-            margin-top: 4px;
-        }
-        .status-badge {
-            font-size: 12px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            margin-left: 10px;
-        }
-        .status-new {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-        .status-used {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        .indicator-new {
-            background-color: #2ecc71;
-        }
-        .indicator-used {
-            background-color: #e74c3c;
-        }
-        .generated-info {
-            font-size: 14px;
-            color: #2c3e50;
-            margin-top: 15px;
-        }
-        .spinner {
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 3px solid #3498db;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .delete-btn { 
+            background: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            border-radius: 3px; 
+            cursor: pointer; 
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>OTP Generator <span class="admin-badge">Admin</span></h1>
-        <p>Generate unique one-time passwords for users who need access to your protected website.</p>
-        
-        <div class="generator-form">
-            <div class="form-group">
-                <label for="email">User's Email Address:</label>
-                <input type="email" id="email" placeholder="Enter customer's email address">
-            </div>
-            <button onclick="generateOTP()">Generate New OTP</button>
-        </div>
-        
-        <div class="result" id="result">
-            <h3>Generated OTP:</h3>
-            <div class="otp-display" id="otpDisplay"></div>
-            <div class="generated-info">
-                <p>This OTP has been stored and can be used <strong>only once</strong> by this email address.</p>
-                <p id="emailDisplay"></p>
-            </div>
-            <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()">Copy OTP</button>
-            <button class="copy-btn" id="shareLinkBtn" onclick="shareAccessLink()">Generate Access Link</button>
-        </div>
-        
-        <div class="history" id="historyContainer">
-            <div class="history-heading">
-                <h3>OTP History</h3>
-                <button class="clear-btn" onclick="clearHistory()">Clear History</button>
-            </div>
-            <div id="historyList"></div>
-        </div>
+    <h1>OTP Generator - Admin Panel</h1>
+    
+    <div class="form-group">
+        <label for="emailInput">Email Address:</label>
+        <input type="email" id="emailInput" placeholder="Enter user email" required>
+    </div>
+    
+    <button onclick="generateOTP()">Generate OTP</button>
+    
+    <div id="result">
+        <div id="message"></div>
+        <div id="generatedOTP"></div>
+        <p><small>OTP is valid for 10 minutes</small></p>
     </div>
 
-    <script>
-        // Store for generated OTPs
-        let otpHistory = [];
-        const maxHistoryItems = 10;
-        
-        // Initialize localStorage for OTPs if it doesn't exist
-        if (!localStorage.getItem('otps')) {
-            localStorage.setItem('otps', JSON.stringify({}));
-        }
-        
-        if (!localStorage.getItem('usedOTPs')) {
-            localStorage.setItem('usedOTPs', JSON.stringify([]));
-        }
-        
-        // On page load, retrieve history from localStorage
-        window.onload = function() {
-            loadHistoryFromStorage();
-            updateHistoryDisplay();
+    <div id="activeOTPs">
+        <h3>Active OTPs</h3>
+        <button onclick="loadActiveOTPs()" style="background: #17a2b8; margin-bottom: 15px;">Refresh Active OTPs</button>
+        <div id="otpList"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, doc, setDoc, collection, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPeNlcSpTe2oOySKcdfh9ykQzHVTDSwzk",
+            authDomain: "otp-gen-4d684.firebaseapp.com",
+            projectId: "otp-gen-4d684",
+            storageBucket: "otp-gen-4d684.firebasestorage.app",
+            messagingSenderId: "1092826485280",
+            appId: "1:1092826485280:web:1a2b5b38f002a793246245"
         };
-        
-        // Load history from localStorage
-        function loadHistoryFromStorage() {
-            const savedHistory = localStorage.getItem('otpHistory');
-            if (savedHistory) {
-                otpHistory = JSON.parse(savedHistory);
-            }
-        }
-        
-        // Save history to localStorage
-        function saveHistoryToStorage() {
-            localStorage.setItem('otpHistory', JSON.stringify(otpHistory));
-        }
-        
-        // Generate a random 6-digit OTP
-        function generateRandomOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-        
-        // Copy OTP to clipboard
-        function copyToClipboard() {
-            const otpText = document.getElementById('otpDisplay').textContent;
-            navigator.clipboard.writeText(otpText)
-                .then(() => {
-                    const copyBtn = document.getElementById('copyBtn');
-                    copyBtn.textContent = "Copied!";
-                    setTimeout(() => {
-                        copyBtn.textContent = "Copy OTP";
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
-                    alert("Failed to copy to clipboard. Please copy manually.");
-                });
-        }
-        
-        // Generate an access link that includes email and OTP
-        function shareAccessLink() {
-            const email = document.getElementById('emailDisplay').textContent.split(': ')[1];
-            const otp = document.getElementById('otpDisplay').textContent;
-            
-            // Create a URL to the access site with parameters
-            // NOTE: In production, use your actual access page URL
-            const accessUrl = `https://yourwebsite.com/access.html?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`;
-            
-            navigator.clipboard.writeText(accessUrl)
-                .then(() => {
-                    const shareBtn = document.getElementById('shareLinkBtn');
-                    shareBtn.textContent = "Access Link Copied!";
-                    setTimeout(() => {
-                        shareBtn.textContent = "Generate Access Link";
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
-                    alert("Failed to copy access link. Please create manually.");
-                });
-        }
-        
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-        
-        async function generateOTP() {
-            const email = document.getElementById('email').value.trim();
-            
-            // Validate email
-            if (!email || !isValidEmail(email)) {
-                alert("Please enter a valid email address");
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.generateOTP = async function() {
+            const email = document.getElementById('emailInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            const messageDiv = document.getElementById('message');
+            const otpDiv = document.getElementById('generatedOTP');
+
+            if (!email) {
+                messageDiv.innerHTML = '<span class="error">Please enter a valid email address</span>';
+                resultDiv.style.display = 'block';
                 return;
             }
+
+            try {
+                // Generate 6-digit OTP
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                const timestamp = new Date().getTime();
+                
+                // Create document ID from email (replace @ and . with underscores)
+                const docId = email.replace('@', '_').replace(/\./g, '_');
+                
+                // Store OTP in Firestore
+                await setDoc(doc(db, 'otps', docId), {
+                    email: email,
+                    otp: otp,
+                    timestamp: timestamp,
+                    generated: new Date().toISOString()
+                });
+
+                messageDiv.innerHTML = '<span class="success">OTP generated successfully for: ' + email + '</span>';
+                otpDiv.textContent = otp;
+                resultDiv.style.display = 'block';
+                
+                // Clear input
+                document.getElementById('emailInput').value = '';
+                
+                // Refresh active OTPs list
+                loadActiveOTPs();
+                
+            } catch (error) {
+                console.error('Error generating OTP:', error);
+                messageDiv.innerHTML = '<span class="error">Error generating OTP. Please try again.</span>';
+                resultDiv.style.display = 'block';
+            }
+        };
+
+        window.loadActiveOTPs = async function() {
+            const otpListDiv = document.getElementById('otpList');
             
             try {
-                // Generate OTP
-                const otp = generateRandomOTP();
+                const querySnapshot = await getDocs(collection(db, 'otps'));
+                const now = new Date().getTime();
+                let activeOTPs = [];
                 
-                // Store OTP in localStorage for Site 1 to verify
-                const storedOTPs = JSON.parse(localStorage.getItem('otps') || '{}');
-                storedOTPs[email] = otp;
-                localStorage.setItem('otps', JSON.stringify(storedOTPs));
-                
-                // Display the result
-                document.getElementById('otpDisplay').textContent = otp;
-                document.getElementById('emailDisplay').textContent = `Email: ${email}`;
-                document.getElementById('result').style.display = 'block';
-                
-                // Add to history
-                addToHistory(email, otp);
-                
-                // Try to notify Site 1 about the new OTP via postMessage
-                try {
-                    // In a real application, you would target Site 1's specific origin
-                    if (window.opener) {
-                        window.opener.postMessage({
-                            type: "otpUpdate",
-                            email: email,
-                            otp: otp
-                        }, "*"); // Use the specific origin in production
-                        
-                        console.log("OTP sent to Site 1 for: " + email);
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const timeDiff = now - data.timestamp;
+                    
+                    // Only show OTPs that are still valid (less than 10 minutes old)
+                    if (timeDiff <= 600000) {
+                        activeOTPs.push({
+                            id: doc.id,
+                            ...data,
+                            timeLeft: Math.ceil((600000 - timeDiff) / 1000)
+                        });
                     }
-                } catch (error) {
-                    console.error("Failed to send OTP to Site 1:", error);
-                    // This is expected if Site 1 isn't open
+                });
+                
+                if (activeOTPs.length === 0) {
+                    otpListDiv.innerHTML = '<p>No active OTPs</p>';
+                } else {
+                    otpListDiv.innerHTML = activeOTPs.map(otp => `
+                        <div class="otp-item">
+                            <div>
+                                <strong>${otp.email}</strong><br>
+                                OTP: <strong>${otp.otp}</strong><br>
+                                <small>Expires in: ${Math.floor(otp.timeLeft / 60)}:${String(otp.timeLeft % 60).padStart(2, '0')}</small>
+                            </div>
+                            <button class="delete-btn" onclick="deleteOTP('${otp.id}')">Delete</button>
+                        </div>
+                    `).join('');
                 }
+                
             } catch (error) {
-                console.error("Error generating OTP:", error);
-                alert("Failed to generate OTP. Please try again.");
+                console.error('Error loading active OTPs:', error);
+                otpListDiv.innerHTML = '<p class="error">Error loading OTPs</p>';
             }
-        }
-        
-        function addToHistory(email, otp) {
-            // Add to front of array
-            otpHistory.unshift({
-                email: email,
-                otp: otp,
-                timestamp: new Date().toLocaleString(),
-                used: false
-            });
-            
-            // Limit history size
-            if (otpHistory.length > maxHistoryItems) {
-                otpHistory.pop();
+        };
+
+        window.deleteOTP = async function(docId) {
+            try {
+                await deleteDoc(doc(db, 'otps', docId));
+                loadActiveOTPs(); // Refresh the list
+            } catch (error) {
+                console.error('Error deleting OTP:', error);
+                alert('Error deleting OTP');
             }
-            
-            // Save to localStorage
-            saveHistoryToStorage();
-            
-            // Update the display
-            updateHistoryDisplay();
-        }
+        };
+
+        // Load active OTPs on page load
+        window.addEventListener('load', loadActiveOTPs);
         
-        function updateHistoryDisplay() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            if (otpHistory.length === 0) {
-                historyList.innerHTML = '<p>No OTPs generated yet</p>';
-                return;
-            }
-            
-            // Get the list of used OTPs to check status
-            const usedOTPs = JSON.parse(localStorage.getItem('usedOTPs') || '[]');
-            
-            otpHistory.forEach(item => {
-                // Check if this OTP has been used
-                const isUsed = usedOTPs.includes(`${item.email}:${item.otp}`);
-                item.used = isUsed; // Update the history item
-                
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                
-                const emailSpan = document.createElement('div');
-                emailSpan.className = 'history-email';
-                emailSpan.innerHTML = `
-                    <strong>${item.email}</strong>
-                    <span class="timestamp">${item.timestamp}</span>
-                `;
-                
-                const otpSpan = document.createElement('div');
-                otpSpan.className = 'history-otp';
-                otpSpan.innerHTML = `
-                    <span class="status-indicator ${isUsed ? 'indicator-used' : 'indicator-new'}"></span>
-                    ${item.otp}
-                    <span class="status-badge ${isUsed ? 'status-used' : 'status-new'}">
-                        ${isUsed ? 'Used' : 'Active'}
-                    </span>
-                `;
-                
-                historyItem.appendChild(emailSpan);
-                historyItem.appendChild(otpSpan);
-                historyList.appendChild(historyItem);
-            });
-            
-            // Save updated usage status
-            saveHistoryToStorage();
-        }
-        
-        function clearHistory() {
-            if (confirm("Are you sure you want to clear the OTP history?")) {
-                otpHistory = [];
-                saveHistoryToStorage();
-                updateHistoryDisplay();
-            }
-        }
-        
-        // Periodically check for OTP usage status changes
-        setInterval(() => {
-            updateHistoryDisplay();
-        }, 5000);
+        // Auto-refresh active OTPs every 30 seconds
+        setInterval(loadActiveOTPs, 30000);
     </script>
 </body>
 </html>
